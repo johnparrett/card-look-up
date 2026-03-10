@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/johnparrett/card-look-up/static/css/main.9f2a5942.css",
+    "main.js": "/johnparrett/card-look-up/static/js/main.13194a5c.js",
+    "index.html": "/johnparrett/card-look-up/index.html",
+    "main.9f2a5942.css.map": "/johnparrett/card-look-up/static/css/main.9f2a5942.css.map",
+    "main.13194a5c.js.map": "/johnparrett/card-look-up/static/js/main.13194a5c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9f2a5942.css",
+    "static/js/main.13194a5c.js"
+  ]
+}
