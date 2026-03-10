@@ -1,0 +1,87 @@
+/* Basic responsive rules for App */
+.app-container {
+  max-width: 980px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.clear-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 6px 10px;
+}
+
+.reset-button {
+  position: absolute;
+  top: 16px;
+  right: 120px;
+  padding: 6px 10px;
+  background: #c62828;
+  color: #fff;
+  border: none;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* keep the table contained inside the viewport */
+  max-height: calc(100vh - 220px);
+  border: 1px solid #eee;
+  background: #fff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+}
+
+.actions-cell button {
+  margin-left: 6px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .clear-button {
+    position: static;
+    float: right;
+    margin-bottom: 8px;
+  }
+
+  .input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-row input {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .input-row button {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  th, td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  /* ensure table can be scrolled horizontally rather than squeezing */
+  .table-wrapper table {
+    min-width: 640px;
+  }
+}
