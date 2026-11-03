@@ -11,7 +11,7 @@ node_modules/
 /out/
 client/build/
 client/dist/
-client/node_modules/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

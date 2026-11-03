@@ -8,6 +8,26 @@ function csvSafe(v) {
   return `"${s}"`;
 }
 
+function formatPrice(value) {
+  if (!value) return '';
+  const num = parseFloat(String(value).replace(/[^\d.]/g, ''));
+  if (isNaN(num)) return '';
+  return '$' + num.toFixed(2);
+}
+
+function parsePrice(value) {
+  if (!value) return 0;
+  const num = parseFloat(String(value).replace(/[^\d.]/g, ''));
+  return isNaN(num) ? 0 : num;
+}
+
+function calculateTotal(rows, priceType) {
+  return rows.reduce((sum, row) => {
+    const price = priceType === 'ebay' ? row.ebayPrice : row.ratingPrice;
+    return sum + parsePrice(price);
+  }, 0);
+}
+
 export default function App() {
   const [tableMode, setTableMode] = useState(null); // 'new' or 'old'
   const [input, setInput] = useState('');
@@ -22,6 +42,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingValue, setEditingValue] = useState('');
+  const [editingPrice, setEditingPrice] = useState(null); // {index, type} where type is 'ebay' or 'rating'
+  const [priceInput, setPriceInput] = useState('');
 
   function clearAll() {
     if (typeof window !== 'undefined' && !window.confirm('Clear all entries? This cannot be undone.')) return;
@@ -206,15 +228,114 @@ export default function App() {
                     </td>
                     {tableMode === 'new' ? (
                       <>
-                        <td>{r.ebayPrice || ''}</td>
+                        <td 
+                          onClick={() => { setEditingPrice({index: i, type: 'ebay'}); setPriceInput(r.ebayPrice || ''); }}
+                          style={{ cursor: 'pointer', backgroundColor: editingPrice?.index === i && editingPrice?.type === 'ebay' ? '#e8f5e9' : 'transparent' }}
+                        >
+                          {editingPrice?.index === i && editingPrice?.type === 'ebay' ? (
+                            <input 
+                              autoFocus
+                              type="text" 
+                              value={priceInput} 
+                              onChange={e => setPriceInput(e.target.value)}
+                              onBlur={() => {
+                                const formatted = formatPrice(priceInput);
+                                setRows(prev => prev.map((row, idx) => idx === i ? {...row, ebayPrice: formatted} : row));
+                                setEditingPrice(null);
+                                setPriceInput('');
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  const formatted = formatPrice(priceInput);
+                                  setRows(prev => prev.map((row, idx) => idx === i ? {...row, ebayPrice: formatted} : row));
+                                  setEditingPrice(null);
+                                  setPriceInput('');
+                                } else if (e.key === 'Escape') {
+                                  setEditingPrice(null);
+                                  setPriceInput('');
+                                }
+                              }}
+                              style={{ width: '100%', padding: '4px' }}
+                              placeholder="Enter price"
+                            />
+                          ) : (
+                            r.ebayPrice || ''
+                          )}
+                        </td>
                         <td>{(r.urls && r.urls.ebayLink) ? (<a href={r.urls.ebayLink} target="_blank" rel="noreferrer">eBay link</a>) : ''}</td>
-                        <td>{r.ratingPrice || ''}</td>
+                        <td 
+                          onClick={() => { setEditingPrice({index: i, type: 'rating'}); setPriceInput(r.ratingPrice || ''); }}
+                          style={{ cursor: 'pointer', backgroundColor: editingPrice?.index === i && editingPrice?.type === 'rating' ? '#e8f5e9' : 'transparent' }}
+                        >
+                          {editingPrice?.index === i && editingPrice?.type === 'rating' ? (
+                            <input 
+                              autoFocus
+                              type="text" 
+                              value={priceInput} 
+                              onChange={e => setPriceInput(e.target.value)}
+                              onBlur={() => {
+                                const formatted = formatPrice(priceInput);
+                                setRows(prev => prev.map((row, idx) => idx === i ? {...row, ratingPrice: formatted} : row));
+                                setEditingPrice(null);
+                                setPriceInput('');
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  const formatted = formatPrice(priceInput);
+                                  setRows(prev => prev.map((row, idx) => idx === i ? {...row, ratingPrice: formatted} : row));
+                                  setEditingPrice(null);
+                                  setPriceInput('');
+                                } else if (e.key === 'Escape') {
+                                  setEditingPrice(null);
+                                  setPriceInput('');
+                                }
+                              }}
+                              style={{ width: '100%', padding: '4px' }}
+                              placeholder="Enter price"
+                            />
+                          ) : (
+                            r.ratingPrice || ''
+                          )}
+                        </td>
                         <td>{r.ratingLink ? (<a href={r.ratingLink} target="_blank" rel="noreferrer">rating link</a>) : ''}</td>
                         <td>{r.comments || ''}</td>
                       </>
                     ) : (
                       <>
-                        <td>{r.ebayPrice || ''}</td>
+                        <td 
+                          onClick={() => { setEditingPrice({index: i, type: 'ebay'}); setPriceInput(r.ebayPrice || ''); }}
+                          style={{ cursor: 'pointer', backgroundColor: editingPrice?.index === i && editingPrice?.type === 'ebay' ? '#e8f5e9' : 'transparent' }}
+                        >
+                          {editingPrice?.index === i && editingPrice?.type === 'ebay' ? (
+                            <input 
+                              autoFocus
+                              type="text" 
+                              value={priceInput} 
+                              onChange={e => setPriceInput(e.target.value)}
+                              onBlur={() => {
+                                const formatted = formatPrice(priceInput);
+                                setRows(prev => prev.map((row, idx) => idx === i ? {...row, ebayPrice: formatted} : row));
+                                setEditingPrice(null);
+                                setPriceInput('');
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  const formatted = formatPrice(priceInput);
+                                  setRows(prev => prev.map((row, idx) => idx === i ? {...row, ebayPrice: formatted} : row));
+                                  setEditingPrice(null);
+                                  setPriceInput('');
+                                } else if (e.key === 'Escape') {
+                                  setEditingPrice(null);
+                                  setPriceInput('');
+                                }
+                              }}
+                              style={{ width: '100%', padding: '4px' }}
+                              placeholder="Enter price"
+                            />
+                          ) : (
+                            r.ebayPrice || ''
+                          )}
+                        </td>
                         <td>{(r.urls && r.urls.ebayLink) ? (<a href={r.urls.ebayLink} target="_blank" rel="noreferrer">eBay sold</a>) : ''}</td>
                       </>
                     )}
@@ -230,8 +351,7 @@ export default function App() {
                               ...r,
                               card: newCard,
                               urls,
-                              // clear ebayPrice when editing and regenerate link
-                              ebayPrice: '',
+                              ebayPrice: r.ebayPrice || '',
                               ratingPrice: r.ratingPrice || '',
                               ratingLink: r.ratingLink || '',
                               comments: r.comments || ''
@@ -251,6 +371,25 @@ export default function App() {
                     </td>
                   </tr>
                 ))}
+                {rows.length > 0 && (
+                  <tr style={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                    <td>TOTAL</td>
+                    {tableMode === 'new' ? (
+                      <>
+                        <td>{formatPrice(calculateTotal(rows, 'ebay'))}</td>
+                        <td></td>
+                        <td>{formatPrice(calculateTotal(rows, 'rating'))}</td>
+                        <td></td>
+                        <td></td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{formatPrice(calculateTotal(rows, 'ebay'))}</td>
+                      </>
+                    )}
+                    <td></td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
