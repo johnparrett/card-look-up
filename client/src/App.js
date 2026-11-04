@@ -243,7 +243,7 @@ export default function App() {
           {currentDatasetName && <span style={{ marginLeft: 12, fontWeight: 'bold', color: '#2196F3' }}>Dataset: {currentDatasetName}</span>}
 
           <h2>Baseball Card Look-Up</h2>
-          <p>To search card, enter: "Year Brand playerName cardNumber Agency Rating"</p>
+          <p>To search card, enter: "Year Brand cardName cardNumber Agency Rating"</p>
 
           <div className="input-row" style={{ marginBottom: 8 }}>
             <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
