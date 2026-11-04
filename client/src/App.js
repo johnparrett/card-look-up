@@ -39,6 +39,15 @@ export default function App() {
       return [];
     }
   });
+  const [currentDatasetName, setCurrentDatasetName] = useState('');
+  const [savedDatasets, setSavedDatasets] = useState(() => {
+    try {
+      const raw = localStorage.getItem('cardDatasets');
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingValue, setEditingValue] = useState('');
@@ -48,6 +57,8 @@ export default function App() {
   const [linkInput, setLinkInput] = useState('');
   const [editingComment, setEditingComment] = useState(null); // {index} for comments
   const [commentInput, setCommentInput] = useState('');
+  const [showDatasetManager, setShowDatasetManager] = useState(false);
+  const [newDatasetName, setNewDatasetName] = useState('');
 
   function clearAll() {
     if (typeof window !== 'undefined' && !window.confirm('Clear all entries? This cannot be undone.')) return;
@@ -61,6 +72,47 @@ export default function App() {
     setRows([]);
     try { localStorage.removeItem('cardRows'); } catch (e) {}
     setTableMode(null);
+  }
+
+  function saveDataset() {
+    const name = newDatasetName.trim();
+    if (!name) {
+      alert('Please enter a dataset name');
+      return;
+    }
+    if (rows.length === 0) {
+      alert('No data to save');
+      return;
+    }
+    
+    const updated = { ...savedDatasets, [name]: { rows, tableMode } };
+    setSavedDatasets(updated);
+    try { localStorage.setItem('cardDatasets', JSON.stringify(updated)); } catch (e) {}
+    setCurrentDatasetName(name);
+    setNewDatasetName('');
+    alert(`Dataset "${name}" saved!`);
+  }
+
+  function loadDataset(name) {
+    const dataset = savedDatasets[name];
+    if (dataset) {
+      setRows(dataset.rows);
+      setTableMode(dataset.tableMode);
+      setCurrentDatasetName(name);
+      setShowDatasetManager(false);
+    }
+  }
+
+  function deleteDataset(name) {
+    if (!window.confirm(`Delete dataset "${name}"?`)) return;
+    const updated = { ...savedDatasets };
+    delete updated[name];
+    setSavedDatasets(updated);
+    try { localStorage.setItem('cardDatasets', JSON.stringify(updated)); } catch (e) {}
+    if (currentDatasetName === name) {
+      setCurrentDatasetName('');
+      setRows([]);
+    }
   }
 
   async function handleLookup() {
@@ -125,6 +177,12 @@ export default function App() {
         const ebayLink = (r.urls && r.urls.ebayLink) ? r.urls.ebayLink : '';
         return [csvSafe(r.card), csvSafe(r.ebayPrice || ''), csvSafe(ebayLink), csvSafe(r.ratingPrice || ''), csvSafe(r.ratingLink || ''), csvSafe(r.comments || '')].join(',');
       }));
+      
+      // Add total row
+      if (rows.length > 0) {
+        lines.push(['TOTAL', csvSafe(formatPrice(calculateTotal(rows, 'ebay'))), '', csvSafe(formatPrice(calculateTotal(rows, 'rating'))), '', ''].join(','));
+      }
+      
       const csv = lines.join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -141,6 +199,12 @@ export default function App() {
         const link = (r.urls && r.urls.ebayLink) ? r.urls.ebayLink : '';
         return [csvSafe(r.card), csvSafe(r.ebayPrice || ''), csvSafe(link)].join(',');
       }));
+      
+      // Add total row
+      if (rows.length > 0) {
+        lines.push(['TOTAL', csvSafe(formatPrice(calculateTotal(rows, 'ebay'))), ''].join(','));
+      }
+      
       const csv = lines.join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -154,7 +218,12 @@ export default function App() {
     }
   }
 
-  useEffect(() => { try { localStorage.setItem('cardRows', JSON.stringify(rows)); } catch (e) {} }, [rows]);
+  useEffect(() => { 
+    try { 
+      localStorage.setItem('cardRows', JSON.stringify(rows));
+      localStorage.setItem('cardDatasets', JSON.stringify(savedDatasets));
+    } catch (e) {} 
+  }, [rows, savedDatasets]);
 
   return (
     <div className="app-container" style={{ padding: 20, fontFamily: 'sans-serif', position: 'relative' }}>
@@ -162,17 +231,19 @@ export default function App() {
         <div style={{ textAlign: 'center', paddingTop: 40 }}>
           <h2>Choose table format</h2>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 16 }}>
-            <button onClick={() => setTableMode('new')}>6-column (include rating)</button>
-            <button onClick={() => setTableMode('old')}>4-column (compact)</button>
+            <button onClick={() => { setTableMode('new'); setRows([]); setCurrentDatasetName(''); }}>6-column (include rating)</button>
+            <button onClick={() => { setTableMode('old'); setRows([]); setCurrentDatasetName(''); }}>4-column (compact)</button>
           </div>
         </div>
       ) : (
         <>
           <button className="reset-button" onClick={confirmReset}>Reset</button>
           <button className="clear-button" onClick={clearAll}>Clear list</button>
+          <button style={{ marginLeft: 8, padding: '8px 12px' }} onClick={() => setShowDatasetManager(true)}>Manage Datasets</button>
+          {currentDatasetName && <span style={{ marginLeft: 12, fontWeight: 'bold', color: '#2196F3' }}>Dataset: {currentDatasetName}</span>}
 
           <h2>Baseball Card Look-Up</h2>
-          <p>Enter: "Year Brand playerName [description] cardNumber — Agency Rating"</p>
+          <p>To search card, enter: "Year Brand playerName cardNumber Agency Rating"</p>
 
           <div className="input-row" style={{ marginBottom: 8 }}>
             <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
@@ -463,6 +534,105 @@ export default function App() {
           <div style={{ marginTop: 12 }}>
             <button onClick={exportCSV} disabled={rows.length === 0}>Export CSV</button>
           </div>
+
+          {showDatasetManager && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1001
+            }}>
+              <div style={{
+                backgroundColor: 'white',
+                padding: '20px',
+                borderRadius: '8px',
+                maxWidth: '500px',
+                maxHeight: '80vh',
+                overflow: 'auto',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+              }}>
+                <h3 style={{ marginTop: 0 }}>Manage Datasets</h3>
+                
+                <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd' }}>
+                  <h4>Save Current Dataset</h4>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Dataset name" 
+                      value={newDatasetName}
+                      onChange={e => setNewDatasetName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && saveDataset()}
+                      style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                    />
+                    <button 
+                      onClick={saveDataset}
+                      style={{ padding: '8px 16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <h4>Saved Datasets ({Object.keys(savedDatasets).length})</h4>
+                  {Object.keys(savedDatasets).length === 0 ? (
+                    <p style={{ color: '#999' }}>No saved datasets yet</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {Object.keys(savedDatasets).map(name => (
+                        <div 
+                          key={name}
+                          style={{ 
+                            padding: '12px', 
+                            border: '1px solid #ddd', 
+                            borderRadius: '4px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            backgroundColor: currentDatasetName === name ? '#e8f5e9' : 'transparent'
+                          }}
+                        >
+                          <div>
+                            <strong>{name}</strong>
+                            <div style={{ fontSize: '12px', color: '#666' }}>{savedDatasets[name].rows.length} items</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button 
+                              onClick={() => loadDataset(name)}
+                              style={{ padding: '6px 12px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Load
+                            </button>
+                            <button 
+                              onClick={() => deleteDataset(name)}
+                              style={{ padding: '6px 12px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ marginTop: '20px', textAlign: 'right' }}>
+                  <button 
+                    onClick={() => setShowDatasetManager(false)}
+                    style={{ padding: '8px 16px', backgroundColor: '#999', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
