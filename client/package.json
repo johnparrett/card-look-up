@@ -2,7 +2,7 @@
   "name": "card-lookup-client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://johnparrett.github.io/card-look-up/",
+  "homepage": "https://github.com/johnparrett/card-look-up",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
