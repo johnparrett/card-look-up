@@ -44,6 +44,10 @@ export default function App() {
   const [editingValue, setEditingValue] = useState('');
   const [editingPrice, setEditingPrice] = useState(null); // {index, type} where type is 'ebay' or 'rating'
   const [priceInput, setPriceInput] = useState('');
+  const [editingLink, setEditingLink] = useState(null); // {index} for rating link
+  const [linkInput, setLinkInput] = useState('');
+  const [editingComment, setEditingComment] = useState(null); // {index} for comments
+  const [commentInput, setCommentInput] = useState('');
 
   function clearAll() {
     if (typeof window !== 'undefined' && !window.confirm('Clear all entries? This cannot be undone.')) return;
@@ -297,8 +301,70 @@ export default function App() {
                             r.ratingPrice || ''
                           )}
                         </td>
-                        <td>{r.ratingLink ? (<a href={r.ratingLink} target="_blank" rel="noreferrer">rating link</a>) : ''}</td>
-                        <td>{r.comments || ''}</td>
+                        <td 
+                          onClick={() => { setEditingLink({index: i}); setLinkInput(r.ratingLink || ''); }}
+                          style={{ cursor: 'pointer', backgroundColor: editingLink?.index === i ? '#e8f5e9' : 'transparent' }}
+                        >
+                          {editingLink?.index === i ? (
+                            <input 
+                              autoFocus
+                              type="text" 
+                              value={linkInput} 
+                              onChange={e => setLinkInput(e.target.value)}
+                              onBlur={() => {
+                                setRows(prev => prev.map((row, idx) => idx === i ? {...row, ratingLink: linkInput} : row));
+                                setEditingLink(null);
+                                setLinkInput('');
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  setRows(prev => prev.map((row, idx) => idx === i ? {...row, ratingLink: linkInput} : row));
+                                  setEditingLink(null);
+                                  setLinkInput('');
+                                } else if (e.key === 'Escape') {
+                                  setEditingLink(null);
+                                  setLinkInput('');
+                                }
+                              }}
+                              style={{ width: '100%', padding: '4px' }}
+                              placeholder="Paste rating site link"
+                            />
+                          ) : (
+                            r.ratingLink ? (<a href={r.ratingLink} target="_blank" rel="noreferrer">Rating site</a>) : ''
+                          )}
+                        </td>
+                        <td 
+                          onClick={() => { setEditingComment({index: i}); setCommentInput(r.comments || ''); }}
+                          style={{ cursor: 'pointer', backgroundColor: editingComment?.index === i ? '#e8f5e9' : 'transparent' }}
+                        >
+                          {editingComment?.index === i ? (
+                            <input 
+                              autoFocus
+                              type="text" 
+                              value={commentInput} 
+                              onChange={e => setCommentInput(e.target.value)}
+                              onBlur={() => {
+                                setRows(prev => prev.map((row, idx) => idx === i ? {...row, comments: commentInput} : row));
+                                setEditingComment(null);
+                                setCommentInput('');
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  setRows(prev => prev.map((row, idx) => idx === i ? {...row, comments: commentInput} : row));
+                                  setEditingComment(null);
+                                  setCommentInput('');
+                                } else if (e.key === 'Escape') {
+                                  setEditingComment(null);
+                                  setCommentInput('');
+                                }
+                              }}
+                              style={{ width: '100%', padding: '4px' }}
+                              placeholder="Add comments"
+                            />
+                          ) : (
+                            r.comments || ''
+                          )}
+                        </td>
                       </>
                     ) : (
                       <>
