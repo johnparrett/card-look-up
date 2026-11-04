@@ -557,7 +557,7 @@ export default function App() {
                 overflow: 'auto',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
               }}>
-                <h3 style={{ marginTop: 0 }}>Manage Datasets</h3>
+                <h3 style={{ marginTop: 0 }}>Save/Load Datasets</h3>
                 
                 <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd' }}>
                   <h4>Save Current Dataset</h4>
