@@ -242,7 +242,7 @@ export default function App() {
           <button style={{ marginLeft: 8, padding: '8px 12px' }} onClick={() => setShowDatasetManager(true)}>Manage Datasets</button>
           {currentDatasetName && <span style={{ marginLeft: 12, fontWeight: 'bold', color: '#2196F3' }}>Dataset: {currentDatasetName}</span>}
 
-          <h2>Baseball Card Look-Up</h2>
+          <h2>Card Look-Up</h2>
           <p>To search card, enter: "Year Brand cardName cardNumber Agency Rating"</p>
 
           <div className="input-row" style={{ marginBottom: 8 }}>
