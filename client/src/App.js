@@ -239,7 +239,7 @@ export default function App() {
         <>
           <button className="reset-button" onClick={confirmReset}>Reset</button>
           <button className="clear-button" onClick={clearAll}>Clear list</button>
-          <button style={{ marginLeft: 8, padding: '8px 12px' }} onClick={() => setShowDatasetManager(true)}>Manage Datasets</button>
+          <button style={{ marginLeft: 8, padding: '8px 12px' }} onClick={() => setShowDatasetManager(true)}>Save/Load Datasets</button>
           {currentDatasetName && <span style={{ marginLeft: 12, fontWeight: 'bold', color: '#2196F3' }}>Dataset: {currentDatasetName}</span>}
 
           <h2>Card Look-Up</h2>
