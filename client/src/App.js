@@ -199,7 +199,7 @@ export default function App() {
               <thead>
                 {tableMode === 'new' ? (
                   <tr>
-                    <th>Year Brand playerName [description] cardNumber — Agency Rating</th>
+                    <th>Card</th>
                     <th>eBay price</th>
                     <th>eBay link</th>
                     <th>Rating price</th>
