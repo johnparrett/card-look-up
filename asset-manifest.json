@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/card-look-up/static/css/main.9f2a5942.css",
-    "main.js": "/card-look-up/static/js/main.ac6532cc.js",
-    "index.html": "/card-look-up/index.html",
-    "main.9f2a5942.css.map": "/card-look-up/static/css/main.9f2a5942.css.map",
-    "main.ac6532cc.js.map": "/card-look-up/static/js/main.ac6532cc.js.map"
+    "main.css": "/johnparrett/card-look-up/static/css/main.9f2a5942.css",
+    "main.js": "/johnparrett/card-look-up/static/js/main.ac6532cc.js",
+    "index.html": "/johnparrett/card-look-up/index.html",
+    "main.9f2a5942.css.map": "/johnparrett/card-look-up/static/css/main.9f2a5942.css.map",
+    "main.ac6532cc.js.map": "/johnparrett/card-look-up/static/js/main.ac6532cc.js.map"
   },
   "entrypoints": [
     "static/css/main.9f2a5942.css",
